@@ -1,19 +1,16 @@
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
 import { VStack, Image, Text, Center, View, ScrollView } from "native-base";
-
-import { AuthNavigatorRouteProps } from "@routes/auth.routes";
-
 import gymImg from "@assets/gym.png";
 import dumbbellImg from "@assets/dumbbell.png";
-
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { useNavigation } from "@react-navigation/native";
 
-export function SignIn() {
-  const navigation = useNavigation<AuthNavigatorRouteProps>();
+export function SignUp() {
+  const navigation = useNavigation();
 
-  function handleNewAccount() {
-    navigation.navigate("signUp");
+  function handleGoBack() {
+    navigation.goBack();
   }
 
   return (
@@ -62,22 +59,26 @@ export function SignIn() {
             Acompanhe seu desempenho na academia
           </Text>
 
+          <Input placeholder="Nome" />
+
           <Input placeholder="Email" keyboardType="email-address" />
 
           <Input placeholder="Senha" secureTextEntry />
 
-          <Button title="Acessar" />
+          <Input placeholder="Confirmar senha" secureTextEntry />
+
+          <Button title="Registrar" />
         </Center>
 
         <Center mt="auto" mb="12">
           <Text fontSize={14} color={"blue.100"} fontFamily={"body"} mb={2}>
-            Não possui conta?
+            Já possui conta?
           </Text>
 
           <Button
-            title="Cadastre-se"
+            title="Voltar para o login"
             variant={"outline"}
-            onPress={handleNewAccount}
+            onPress={handleGoBack}
           />
         </Center>
       </VStack>
