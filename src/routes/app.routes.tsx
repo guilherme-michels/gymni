@@ -9,12 +9,12 @@ import { Exercise } from "@screens/Exercise";
 import { History } from "@screens/History";
 import { Home } from "@screens/Home";
 import { Profile } from "@screens/Profile";
+import { Workout } from "@screens/Workout";
 
 import ProfileSvg from "@assets/profile.svg";
 import HomeSvg from "@assets/home.svg";
 import HistorySvg from "@assets/history.svg";
 import WorkoutsSvg from "@assets/workouts.svg";
-import { Workout } from "@screens/Workout";
 
 type AppRoutes = {
   home: undefined;
@@ -24,7 +24,7 @@ type AppRoutes = {
   workout: undefined;
 };
 
-export type AuthNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;
+export type AppNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;
 
 const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 

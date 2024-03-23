@@ -4,9 +4,9 @@ import { Entypo } from "@expo/vector-icons";
 
 type ExerciseCardProps = TouchableOpacityProps & {};
 
-export function ExerciseCard() {
+export function ExerciseCard({ ...rest }: ExerciseCardProps) {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity {...rest}>
       <HStack
         bg={"gray.600"}
         alignItems={"center"}
@@ -24,7 +24,7 @@ export function ExerciseCard() {
           h={16}
           rounded={"md"}
           mr={4}
-          resizeMode="center"
+          resizeMode="cover"
         />
 
         <VStack flex={1}>
