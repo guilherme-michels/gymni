@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { VStack, Image, Text, Center, View, ScrollView } from "native-base";
+import {
+  VStack,
+  Image,
+  Text,
+  Center,
+  View,
+  ScrollView,
+  useToast,
+} from "native-base";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
@@ -8,9 +16,12 @@ import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { registerAccount } from "src/api/auth.service";
+import { AppError } from "@utils/AppError";
 
 import gymImg from "@assets/gym.png";
 import dumbbellImg from "@assets/dumbbell.png";
+import { useAuth } from "@hooks/useAuth";
 
 type SignUpDataProps = {
   name: string;
@@ -25,7 +36,7 @@ const signUpSchema = yup.object({
   password: yup
     .string()
     .required("Senha é obrigatória.")
-    .min(6, "A senha deve ter pelo menos 6 caracteres."),
+    .min(1, "A senha deve ter pelo menos 6 caracteres."),
   confirmPassword: yup
     .string()
     .required("Confirme a senha...")
@@ -33,14 +44,19 @@ const signUpSchema = yup.object({
 });
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<SignUpDataProps>({
     resolver: yupResolver(signUpSchema),
   });
 
+  const toast = useToast();
   const navigation = useNavigation();
 
   function handleGoBack() {
@@ -48,16 +64,32 @@ export function SignUp() {
   }
 
   async function handleSignUp({ email, name, password }: SignUpDataProps) {
-    const response = await fetch("http://10.0.0.108:3333/users", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await response.json();
-    console.log(data);
+    try {
+      setIsLoading(true);
+
+      await registerAccount({
+        email,
+        name,
+        password,
+      });
+
+      await signIn(email, password);
+
+      reset();
+    } catch (error) {
+      setIsLoading(false);
+
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível criar a conta";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.400",
+      });
+    }
   }
 
   return (
@@ -164,7 +196,11 @@ export function SignUp() {
             )}
           />
 
-          <Button title="Registrar" onPress={handleSubmit(handleSignUp)} />
+          <Button
+            title="Registrar"
+            onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
+          />
         </Center>
 
         <Center mt="auto" mb="12">
