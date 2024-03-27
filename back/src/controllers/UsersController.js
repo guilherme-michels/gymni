@@ -21,7 +21,7 @@ class UsersController {
     await knex("users").insert({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     return response.status(201).json();
@@ -41,15 +41,12 @@ class UsersController {
 
     if (password && !old_password) {
       throw new AppError(
-        "Você precisa informar a senha antiga para definir a nova senha.",
+        "Você precisa informar a senha antiga para definir a nova senha."
       );
     }
 
-
     if (!password && old_password) {
-      throw new AppError(
-        "Informe a nova senha.",
-      );
+      throw new AppError("Informe a nova senha.");
     }
 
     if (password && old_password) {

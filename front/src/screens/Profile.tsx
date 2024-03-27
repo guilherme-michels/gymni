@@ -14,30 +14,48 @@ import { TouchableOpacity } from "react-native";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import * as ImagePicker from "expo-image-picker";
+import { useForm, Controller } from "react-hook-form";
+import { useAuth } from "@hooks/useAuth";
+
+type ProfileDataProps = {
+  name: string;
+  email: string;
+  password: string;
+  oldPassword: string;
+  confirmPassword: string;
+};
 
 export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   const toast = useToast();
+  const { user } = useAuth();
+
+  const { control } = useForm<ProfileDataProps>({
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    },
+  });
 
   async function handleUserPhotoSelect() {
     setPhotoIsLoading(true);
 
     try {
-      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+      const selectedPhoto = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
         aspect: [4, 4],
         allowsEditing: true,
       });
 
-      if (photoSelected.canceled) {
+      if (selectedPhoto.canceled) {
         return;
       }
 
-      if (photoSelected.assets[0].uri) {
-        setUserPhoto(photoSelected.assets[0].uri);
+      if (selectedPhoto.assets[0].uri) {
+        setUserPhoto(selectedPhoto.assets[0].uri);
 
         toast.show({
           title: "Foto alterada",
@@ -79,9 +97,27 @@ export function Profile() {
             </Text>
           </TouchableOpacity>
 
-          <Input placeholder="Nome" />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { value, onChange } }) => (
+              <Input placeholder="Nome" onChangeText={onChange} value={value} />
+            )}
+          />
 
-          <Input placeholder="Email" keyboardType="email-address" />
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                placeholder="Email"
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                isDisabled
+              />
+            )}
+          />
         </Center>
 
         <VStack px={10} mt={12} mb={9}>

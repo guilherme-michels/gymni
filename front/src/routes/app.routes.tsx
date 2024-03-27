@@ -18,7 +18,7 @@ import WorkoutsSvg from "@assets/workouts.svg";
 
 type AppRoutes = {
   home: undefined;
-  exercise: undefined;
+  exercise: { exerciseId: string };
   profile: undefined;
   history: undefined;
   workout: undefined;

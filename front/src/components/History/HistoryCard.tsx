@@ -1,10 +1,11 @@
-import { HStack, Heading, Text, VStack, Icon } from "native-base";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
-import { Entypo } from "@expo/vector-icons";
+import { HStack, Heading, Text, VStack } from "native-base";
+import { HistoryDTO } from "@dtos/HistoryDTO";
 
-type HistoryCardProps = TouchableOpacityProps & {};
+type HistoryCardProps = {
+  history: HistoryDTO;
+};
 
-export function HistoryCard({ ...rest }: HistoryCardProps) {
+export function HistoryCard({ history }: HistoryCardProps) {
   return (
     <HStack
       w={"full"}
@@ -23,15 +24,15 @@ export function HistoryCard({ ...rest }: HistoryCardProps) {
           textTransform={"capitalize"}
           numberOfLines={1}
         >
-          Costas
+          {history.group}
         </Heading>
         <Text color={"gray.200"} fontSize={"lg"} numberOfLines={1}>
-          Puxada frontal
+          {history.name}
         </Text>
       </VStack>
 
       <Text color={"gray.300"} fontSize={"md"}>
-        8:56
+        {history.hour}
       </Text>
     </HStack>
   );

@@ -1,28 +1,54 @@
 import { HistoryCard } from "@components/History/HistoryCard";
 import { ScreenHeader } from "@components/ScreenHeader";
-import { Heading, SectionList, Text, VStack } from "native-base";
-import { useState } from "react";
+import { HistoryByDayDTO } from "@dtos/HistoryByDayDTO";
+import { useFocusEffect } from "@react-navigation/native";
+import { AppError } from "@utils/AppError";
+import { Heading, SectionList, Text, VStack, useToast } from "native-base";
+import { useCallback, useState } from "react";
+import { getHistory } from "src/api/history.service";
 
 export function History() {
-  const [exercises, setExercises] = useState([
-    {
-      title: "AAA",
-      data: ["1", "2", "3"],
-    },
-    {
-      title: "BBB",
-      data: ["1", "2", "3"],
-    },
-  ]);
+  const toast = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [historyExercises, setHistoryExercises] = useState<HistoryByDayDTO[]>(
+    []
+  );
+
+  async function fetchHistory() {
+    try {
+      setIsLoading(true);
+      const response = await getHistory();
+      setHistoryExercises(response);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os dados.";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.400",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistory();
+    }, [])
+  );
 
   return (
     <VStack flex={1}>
       <ScreenHeader title="Histórico de treinos" />
 
       <SectionList
-        sections={exercises}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => <HistoryCard />}
+        sections={historyExercises}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <HistoryCard history={item} />}
         px={8}
         renderSectionHeader={({ section }) => (
           <Heading color={"gray.100"} fontSize={"md"} mt={8} mb={2}>
@@ -30,7 +56,7 @@ export function History() {
           </Heading>
         )}
         contentContainerStyle={
-          exercises.length === 0 && { flex: 1, justifyContent: "center" }
+          historyExercises.length === 0 && { flex: 1, justifyContent: "center" }
         }
         ListEmptyComponent={() => (
           <Text color={"gray.100"} textAlign={"center"}>
