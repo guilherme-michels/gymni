@@ -1,6 +1,6 @@
 const knex = require("../database");
 const dayjs = require("dayjs");
-const uuid = require('uuid')
+const uuid = require("uuid");
 
 class GenerateRefreshToken {
   async execute(user_id) {
@@ -12,7 +12,7 @@ class GenerateRefreshToken {
     await knex("refresh_token").insert({
       user_id,
       expires_in,
-      refresh_token
+      refresh_token,
     });
 
     return refresh_token;

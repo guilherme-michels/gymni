@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   VStack,
@@ -12,14 +13,13 @@ import {
 import { AuthNavigatorRouteProps } from "@routes/auth.routes";
 import { useAuth } from "@hooks/useAuth";
 
-import gymImg from "@assets/gym.png";
-import dumbbellImg from "@assets/dumbbell.png";
-
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { useForm, Controller } from "react-hook-form";
 import { AppError } from "@utils/AppError";
-import { useState } from "react";
+
+import gymImg from "@assets/gym.png";
+import dumbbellImg from "@assets/dumbbell.png";
 
 type SignInFormData = {
   email: string;

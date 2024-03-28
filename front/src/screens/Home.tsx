@@ -10,7 +10,6 @@ import { AppError } from "@utils/AppError";
 import { getGroups } from "src/api/group.service";
 import { getExerciseByGroup } from "src/api/exercise.service";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
-import { Loading } from "@components/Loading";
 
 export function Home() {
   const navigation = useNavigation<AppNavigatorRouteProps>();

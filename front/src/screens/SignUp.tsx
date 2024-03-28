@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 
+import { useAuth } from "@hooks/useAuth";
+import { AppError } from "@utils/AppError";
+import { registerAccount } from "src/api/auth.service";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
 import {
   VStack,
   Image,
@@ -14,14 +20,9 @@ import { Button } from "@components/Button";
 
 import { useNavigation } from "@react-navigation/native";
 import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { registerAccount } from "src/api/auth.service";
-import { AppError } from "@utils/AppError";
 
 import gymImg from "@assets/gym.png";
 import dumbbellImg from "@assets/dumbbell.png";
-import { useAuth } from "@hooks/useAuth";
 
 type SignUpDataProps = {
   name: string;
@@ -36,7 +37,7 @@ const signUpSchema = yup.object({
   password: yup
     .string()
     .required("Senha é obrigatória.")
-    .min(1, "A senha deve ter pelo menos 6 caracteres."),
+    .min(6, "A senha deve ter pelo menos 6 caracteres."),
   confirmPassword: yup
     .string()
     .required("Confirme a senha...")

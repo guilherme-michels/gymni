@@ -1,4 +1,5 @@
 import { HistoryCard } from "@components/History/HistoryCard";
+import { Loading } from "@components/Loading";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { HistoryByDayDTO } from "@dtos/HistoryByDayDTO";
 import { useFocusEffect } from "@react-navigation/native";
@@ -45,26 +46,33 @@ export function History() {
     <VStack flex={1}>
       <ScreenHeader title="Histórico de treinos" />
 
-      <SectionList
-        sections={historyExercises}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <HistoryCard history={item} />}
-        px={8}
-        renderSectionHeader={({ section }) => (
-          <Heading color={"gray.100"} fontSize={"md"} mt={8} mb={2}>
-            {section.title}
-          </Heading>
-        )}
-        contentContainerStyle={
-          historyExercises.length === 0 && { flex: 1, justifyContent: "center" }
-        }
-        ListEmptyComponent={() => (
-          <Text color={"gray.100"} textAlign={"center"}>
-            Não há exercícios registrados ainda.
-          </Text>
-        )}
-        showsVerticalScrollIndicator={false}
-      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <SectionList
+          sections={historyExercises}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <HistoryCard history={item} />}
+          px={8}
+          renderSectionHeader={({ section }) => (
+            <Heading color={"gray.100"} fontSize={"md"} mt={8} mb={2}>
+              {section.title}
+            </Heading>
+          )}
+          contentContainerStyle={
+            historyExercises.length === 0 && {
+              flex: 1,
+              justifyContent: "center",
+            }
+          }
+          ListEmptyComponent={() => (
+            <Text color={"gray.100"} textAlign={"center"}>
+              Não há exercícios registrados ainda.
+            </Text>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </VStack>
   );
 }

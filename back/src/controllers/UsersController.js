@@ -28,7 +28,7 @@ class UsersController {
   }
 
   async update(request, response) {
-    const { name, password, old_password } = request.body;
+    const { name, password, oldPassword } = request.body;
     const user_id = request.user.id;
 
     const user = await knex("users").where({ id: user_id }).first();
@@ -39,18 +39,18 @@ class UsersController {
 
     user.name = name ?? user.name;
 
-    if (password && !old_password) {
+    if (password && !oldPassword) {
       throw new AppError(
         "Você precisa informar a senha antiga para definir a nova senha."
       );
     }
 
-    if (!password && old_password) {
+    if (!password && oldPassword) {
       throw new AppError("Informe a nova senha.");
     }
 
-    if (password && old_password) {
-      const checkOldPassword = await compare(old_password, user.password);
+    if (password && oldPassword) {
+      const checkOldPassword = await compare(oldPassword, user.password);
 
       if (!checkOldPassword) {
         throw new AppError("A senha antiga não confere.");
