@@ -1,11 +1,11 @@
-import { HistoryCard } from "@components/History/HistoryCard";
 import { Loading } from "@components/Loading";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { WorkoutCard } from "@components/Workout/WorkoutCard";
 import { WorkoutDTO } from "@dtos/WorkoutDTO";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { AppNavigatorRouteProps } from "@routes/app.routes";
 import { AppError } from "@utils/AppError";
-import { Text, VStack, useToast } from "native-base";
+import { ScrollView, Text, VStack, useToast } from "native-base";
 import { useCallback, useState } from "react";
 import { getWorkouts } from "src/api/workout.service";
 
@@ -14,12 +14,13 @@ export function WorkoutsList() {
   const [isLoading, setIsLoading] = useState(true);
   const [workoutsList, setWorkoutsList] = useState<WorkoutDTO[]>([]);
 
+  const navigation = useNavigation<AppNavigatorRouteProps>();
+
   async function fetchHistory() {
     try {
       setIsLoading(true);
       const response = await getWorkouts();
       setWorkoutsList(response);
-      console.log(response);
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError
@@ -44,19 +45,29 @@ export function WorkoutsList() {
 
   return (
     <VStack flex={1}>
-      <ScreenHeader title="Histórico de treinos" />
+      <ScreenHeader title="Meus treinos" onClick={() => console.log("a")} />
 
-      {isLoading && workoutsList ? (
-        <Loading />
-      ) : (
-        workoutsList.map((workout) => <WorkoutCard workout={workout} />)
-      )}
+      <ScrollView px={3}>
+        {isLoading && workoutsList ? (
+          <Loading />
+        ) : (
+          workoutsList.map((workout) => (
+            <WorkoutCard
+              workout={workout}
+              key={workout.id}
+              onPress={() =>
+                navigation.navigate("workout", { workoutId: workout.id })
+              }
+            />
+          ))
+        )}
 
-      {workoutsList.length === 0 && (
-        <Text color={"gray.100"} textAlign={"center"}>
-          Não há treinos cadastrados ainda.
-        </Text>
-      )}
+        {workoutsList.length === 0 && (
+          <Text color={"gray.100"} textAlign={"center"}>
+            Não há treinos cadastrados ainda.
+          </Text>
+        )}
+      </ScrollView>
     </VStack>
   );
 }

@@ -22,7 +22,7 @@ type AppRoutes = {
   exercise: { exerciseId: string };
   profile: undefined;
   history: undefined;
-  workout: undefined;
+  workout: { workoutId: string };
   workoutsList: undefined;
 };
 

@@ -44,7 +44,7 @@ export function History() {
 
   return (
     <VStack flex={1}>
-      <ScreenHeader title="Histórico de treinos" />
+      <ScreenHeader title="Histórico de exercícios" />
 
       {isLoading ? (
         <Loading />

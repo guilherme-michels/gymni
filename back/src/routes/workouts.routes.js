@@ -11,5 +11,7 @@ workoutRoutes.use(ensureAuthenticated);
 
 workoutRoutes.get("/", workoutController.index);
 workoutRoutes.post("/", workoutController.create);
+workoutRoutes.get("/:id", workoutController.show);
+workoutRoutes.put("/history/:id", workoutController.history);
 
 module.exports = workoutRoutes;

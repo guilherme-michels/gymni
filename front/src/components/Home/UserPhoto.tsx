@@ -9,7 +9,7 @@ export function UserPhoto({ size, ...rest }: UserPhotoProps) {
     <Image
       w={size}
       h={size}
-      rounded={"full"}
+      rounded={"2xl"}
       borderWidth={1}
       borderColor={"gray.400"}
       {...rest}
