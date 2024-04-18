@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "src/api";
 
 import {
   Center,
@@ -22,8 +23,8 @@ import { useForm, Controller } from "react-hook-form";
 import { useAuth } from "@hooks/useAuth";
 import { updateProfile, updateUserImage } from "src/api/profile.service";
 import { AppError } from "@utils/AppError";
+
 import userDefaultImg from "@assets/userDefault.jpg";
-import { api } from "src/api";
 
 type ProfileDataProps = {
   name: string;

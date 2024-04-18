@@ -9,7 +9,8 @@ import { Exercise } from "@screens/Exercise";
 import { History } from "@screens/History";
 import { Home } from "@screens/Home";
 import { Profile } from "@screens/Profile";
-import { Workout } from "@screens/Workout";
+import { Workout } from "@screens/Workouts/Workout";
+import { WorkoutsList } from "@screens/Workouts/WorkoutsList";
 
 import ProfileSvg from "@assets/profile.svg";
 import HomeSvg from "@assets/home.svg";
@@ -22,6 +23,7 @@ type AppRoutes = {
   profile: undefined;
   history: undefined;
   workout: undefined;
+  workoutsList: undefined;
 };
 
 export type AppNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;
@@ -68,12 +70,20 @@ export function AppRoutes() {
       />
 
       <Screen
-        name="workout"
-        component={Workout}
+        name="workoutsList"
+        component={WorkoutsList}
         options={{
           tabBarIcon: ({ color }) => (
             <WorkoutsSvg fill={color} width={iconSize} height={iconSize} />
           ),
+        }}
+      />
+
+      <Screen
+        name="workout"
+        component={Workout}
+        options={{
+          tabBarButton: () => null,
         }}
       />
 
