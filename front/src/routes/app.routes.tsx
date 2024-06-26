@@ -16,6 +16,7 @@ import ProfileSvg from "@assets/profile.svg";
 import HomeSvg from "@assets/home.svg";
 import HistorySvg from "@assets/history.svg";
 import WorkoutsSvg from "@assets/workouts.svg";
+import { WorkoutForm } from "@screens/Workouts/WorkoutForm";
 
 type AppRoutes = {
   home: undefined;
@@ -24,6 +25,7 @@ type AppRoutes = {
   history: undefined;
   workout: { workoutId: string };
   workoutsList: undefined;
+  workoutForm: undefined;
 };
 
 export type AppNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;
@@ -82,6 +84,14 @@ export function AppRoutes() {
       <Screen
         name="workout"
         component={Workout}
+        options={{
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Screen
+        name="workoutForm"
+        component={WorkoutForm}
         options={{
           tabBarButton: () => null,
         }}

@@ -32,8 +32,8 @@ class WorkoutController {
       workout_id,
       exercise_id: exercise.id,
     }));
-    await knex("workout_exercises").insert(exercisesData);
-    return response.status(201).json({ workout_id });
+    await knex("workout_exercise").insert(exercisesData);
+    return response.status(201).json();
   }
 
   async update(request, response) {
@@ -49,12 +49,12 @@ class WorkoutController {
       await knex("workout").where({ id: workout_id }).update({ description });
     }
     if (exercises && exercises.length > 0) {
-      await knex("workout_exercises").where({ workout_id }).del();
+      await knex("workout_exercise").where({ workout_id }).del();
       const exercisesData = exercises.map((exercise) => ({
         workout_id,
         exercise_id: exercise.id,
       }));
-      await knex("workout_exercises").insert(exercisesData);
+      await knex("workout_exercise").insert(exercisesData);
     }
     return response.status(200).json();
   }
@@ -108,6 +108,26 @@ class WorkoutController {
       return response
         .status(500)
         .json({ error: "Erro ao atualizar o histórico do treino." });
+    }
+  }
+
+  async delete(request, response) {
+    const { id } = request.params;
+
+    try {
+      const deletedCount = await knex("workout").where({ id: id }).del();
+
+      if (deletedCount === 0) {
+        throw new AppError("Treino não encontrado.", 404);
+      }
+
+      await knex("workout_exercise").where({ id }).del();
+
+      return response
+        .status(200)
+        .json({ message: "Treino deletado com sucesso." });
+    } catch (error) {
+      return response.status(500).json({ error: "Erro ao deletar o treino." });
     }
   }
 }

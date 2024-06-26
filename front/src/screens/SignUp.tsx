@@ -23,6 +23,7 @@ import { useForm, Controller } from "react-hook-form";
 
 import gymImg from "@assets/gym.png";
 import dumbbellImg from "@assets/dumbbell.png";
+import { AuthNavigatorRouteProps } from "@routes/auth.routes";
 
 type SignUpDataProps = {
   name: string;
@@ -58,7 +59,7 @@ export function SignUp() {
   });
 
   const toast = useToast();
-  const navigation = useNavigation();
+  const navigation = useNavigation<AuthNavigatorRouteProps>();
 
   function handleGoBack() {
     navigation.goBack();

@@ -1,14 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { HStack, Image, ScrollView, Text, VStack, useToast } from "native-base";
-import { useRoute } from "@react-navigation/native";
+import {
+  HStack,
+  Image,
+  ScrollView,
+  Text,
+  VStack,
+  useToast,
+  Button as NativeBaseButton,
+} from "native-base";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppError } from "@utils/AppError";
 import { WorkoutDTO } from "@dtos/WorkoutDTO";
-import { addWorkoutRegister, getWorkoutById } from "src/api/workout.service";
+import {
+  addWorkoutRegister,
+  getWorkoutById,
+  deleteWorkout,
+} from "src/api/workout.service";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { api } from "src/api";
 import { TouchableOpacity } from "react-native";
 import { Button } from "@components/Button";
+import { AppNavigatorRouteProps } from "@routes/app.routes";
 
 type WorkoutRouteParamsProps = {
   workoutId: string;
@@ -23,6 +36,7 @@ export function Workout() {
   );
   const route = useRoute();
   const toast = useToast();
+  const navigation = useNavigation<AppNavigatorRouteProps>();
 
   const { workoutId } = route.params as WorkoutRouteParamsProps;
 
@@ -69,6 +83,29 @@ export function Workout() {
       });
     } finally {
       setIsSendingRegister(false);
+    }
+  }
+
+  async function handleDeleteWorkout() {
+    try {
+      await deleteWorkout(workoutId);
+      toast.show({
+        title: "Treino excluído com sucesso!",
+        placement: "top",
+        bgColor: "green.400",
+      });
+      navigation.navigate("workoutsList");
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível excluir o treino.";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.400",
+      });
     }
   }
 
@@ -176,13 +213,22 @@ export function Workout() {
             )}
         </VStack>
 
-        <VStack flex={1} px={4}>
+        <VStack flex={1} px={4} mt={4}>
           <Button
             title="Marcar como concluído"
             isLoading={sendingRegister}
             opacity={!allExercisesCompleted ? "20" : "100"}
             onPress={handleWorkoutHistoryRegister}
           />
+
+          <NativeBaseButton
+            mt={4}
+            onPress={handleDeleteWorkout}
+            colorScheme="red"
+            variant="solid"
+          >
+            Excluir treino
+          </NativeBaseButton>
         </VStack>
       </ScrollView>
     </VStack>

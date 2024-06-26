@@ -13,5 +13,6 @@ workoutRoutes.get("/", workoutController.index);
 workoutRoutes.post("/", workoutController.create);
 workoutRoutes.get("/:id", workoutController.show);
 workoutRoutes.put("/history/:id", workoutController.history);
+workoutRoutes.delete("/:id", workoutController.delete);
 
 module.exports = workoutRoutes;

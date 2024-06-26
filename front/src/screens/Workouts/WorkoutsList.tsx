@@ -45,7 +45,10 @@ export function WorkoutsList() {
 
   return (
     <VStack flex={1}>
-      <ScreenHeader title="Meus treinos" onClick={() => console.log("a")} />
+      <ScreenHeader
+        title="Meus treinos"
+        onClick={() => navigation.navigate("workoutForm")}
+      />
 
       <ScrollView px={3}>
         {isLoading && workoutsList ? (
@@ -63,7 +66,7 @@ export function WorkoutsList() {
         )}
 
         {workoutsList.length === 0 && (
-          <Text color={"gray.100"} textAlign={"center"}>
+          <Text color={"gray.100"} textAlign={"center"} marginTop={4}>
             Não há treinos cadastrados ainda.
           </Text>
         )}
