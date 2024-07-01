@@ -47,7 +47,9 @@ export function WorkoutsList() {
     <VStack flex={1}>
       <ScreenHeader
         title="Meus treinos"
-        onClick={() => navigation.navigate("workoutForm")}
+        onClick={() =>
+          navigation.navigate("workoutForm", { workoutId: undefined })
+        }
       />
 
       <ScrollView px={3}>

@@ -6,14 +6,16 @@ import {
 
 type InputProps = IInputProps & {
   errorMessage?: string | null;
+  type?: string; 
 };
 
-export function Input({ errorMessage = null, isInvalid, ...rest }: InputProps) {
+export function Input({ errorMessage = null, isInvalid, type = "text", ...rest }: InputProps) {
   const invalid = !!errorMessage || isInvalid;
 
   return (
     <FormControl isInvalid={invalid} mb={4}>
       <NativeBaseInput
+        type={type} 
         background={"#0000000"}
         h={12}
         px={4}

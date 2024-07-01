@@ -15,12 +15,20 @@ import {
 import { Button } from "@components/Button";
 import { Input } from "@components/Input";
 import { useForm, Controller } from "react-hook-form";
-import { addWorkout } from "src/api/workout.service";
+import {
+  addWorkout,
+  getWorkoutById,
+  updatedWorkout,
+} from "src/api/workout.service";
 import { ScreenHeader } from "@components/ScreenHeader";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { getExerciseByGroup } from "src/api/exercise.service";
 import { getGroups } from "src/api/group.service";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { AppNavigatorRouteProps } from "@routes/app.routes";
 import { Group } from "@components/Group";
 
@@ -31,11 +39,13 @@ type Exercise = {
 
 type WorkoutDataProps = {
   description: string;
+  average_execution_time: string;
   exercises: Exercise[];
 };
 
 const workoutSchema = yup.object().shape({
   description: yup.string().required("Descrição é obrigatória."),
+  average_execution_time: yup.string().required("Tempo médio é obrigatório."),
   exercises: yup
     .array()
     .of(
@@ -55,46 +65,65 @@ export function WorkoutForm() {
   const [selectedGroup, setSelectedGroup] = useState("antebraço");
   const [exercisesLoaded, setExercisesLoaded] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+  const [workoutId, setWorkoutId] = useState<string | null>(null);
   const navigation = useNavigation<AppNavigatorRouteProps>();
-
+  const route = useRoute();
   const toast = useToast();
+
+  useEffect(() => {
+    const { workoutId: routeWorkoutId } = route.params as { workoutId: string };
+    if (routeWorkoutId) {
+      reset();
+
+      setWorkoutId(routeWorkoutId);
+      fetchWorkoutDetails(routeWorkoutId);
+    } else {
+      reset();
+
+      setWorkoutId(null);
+    }
+  }, [route.params]);
 
   async function fetchGroups() {
     try {
       const response = await getGroups();
       setGroups(response);
     } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os grupos de exercícios.";
-
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.400",
-      });
+      handleApiError(
+        error,
+        "Não foi possível carregar os grupos de exercícios."
+      );
     }
   }
 
   async function fetchExerciseByGroup() {
     try {
       setLoadingExercises(true);
-
       const response = await getExerciseByGroup(selectedGroup);
       setExercises(response);
       setExercisesLoaded(true);
     } catch (error) {
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível carregar os exercícios.";
+      handleApiError(error, "Não foi possível carregar os exercícios.");
+    } finally {
+      setLoadingExercises(false);
+    }
+  }
 
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.400",
-      });
+  async function fetchWorkoutDetails(workoutId: string) {
+    try {
+      setLoadingExercises(true);
+      const response = await getWorkoutById(workoutId);
+      setSelectedGroup(response.group);
+      setExercises(response.exercises);
+      setExercisesLoaded(true);
+      setValue("description", response.description);
+      setValue(
+        "average_execution_time",
+        String(response.average_execution_time)
+      );
+      setSelectedExercises(response.exercises);
+    } catch (error) {
+      handleApiError(error, "Não foi possível carregar os detalhes do treino.");
     } finally {
       setLoadingExercises(false);
     }
@@ -115,60 +144,51 @@ export function WorkoutForm() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<WorkoutDataProps>({
     resolver: yupResolver(workoutSchema) as any,
   });
 
-  async function handleCreateWorkout(data: WorkoutDataProps) {
+  async function handleCreateOrUpdateWorkout(data: WorkoutDataProps) {
     try {
       setIsLoading(true);
-
-      await addWorkout({
+      const workoutData = {
         description: data.description,
         exercises: selectedExercises,
-      });
-
+        average_execution_time: Number(data.average_execution_time),
+      };
+      if (workoutId) {
+        await updatedWorkout(workoutId, workoutData);
+      } else {
+        await addWorkout(workoutData);
+      }
       setSelectedExercises([]);
-
       reset();
-      navigation.navigate("workoutsList");
       setIsLoading(false);
-
+      const successMessage = workoutId
+        ? "Treino atualizado com sucesso!"
+        : "Treino criado com sucesso!";
       toast.show({
-        title: "Treino criado com sucesso!",
+        title: successMessage,
         placement: "top",
         bgColor: "green.400",
       });
+      navigation.navigate("workoutsList");
     } catch (error) {
+      handleApiError(error, "Não foi possível criar ou atualizar o treino.");
+    } finally {
       setIsLoading(false);
-
-      const isAppError = error instanceof AppError;
-      const title = isAppError
-        ? error.message
-        : "Não foi possível criar o treino.";
-
-      toast.show({
-        title,
-        placement: "top",
-        bgColor: "red.400",
-      });
     }
   }
 
   const renderExerciseItem = (item: ExerciseDTO) => {
     const isSelected = selectedExercises.some((ex) => ex.id === item.id);
-
     const handlePress = () => {
-      const index = selectedExercises.findIndex((ex) => ex.id === item.id);
-      if (index === -1) {
-        setSelectedExercises([...selectedExercises, item]);
-      } else {
-        const updatedExercises = [...selectedExercises];
-        updatedExercises.splice(index, 1);
-        setSelectedExercises(updatedExercises);
-      }
+      const updatedExercises = isSelected
+        ? selectedExercises.filter((ex) => ex.id !== item.id)
+        : [...selectedExercises, item];
+      setSelectedExercises(updatedExercises);
     };
-
     return (
       <Pressable
         key={item.id}
@@ -185,10 +205,19 @@ export function WorkoutForm() {
     );
   };
 
+  const handleApiError = (error: any, defaultMessage: string) => {
+    const isAppError = error instanceof AppError;
+    const title = isAppError ? error.message : defaultMessage;
+    toast.show({
+      title,
+      placement: "top",
+      bgColor: "red.400",
+    });
+  };
+
   return (
     <VStack flex={1}>
-      <ScreenHeader title="Cadastrar treino" />
-
+      <ScreenHeader title={workoutId ? "Editar treino" : "Cadastrar treino"} />
       <VStack flex={1} px={4} py={4}>
         <View
           style={{
@@ -211,7 +240,28 @@ export function WorkoutForm() {
             )}
           />
         </View>
-
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Controller
+            control={control}
+            name="average_execution_time"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Tempo médio do treino (min)"
+                onChangeText={onChange}
+                value={value}
+                errorMessage={errors.average_execution_time?.message}
+                keyboardType="number-pad"
+              />
+            )}
+          />
+        </View>
         <FlatList
           data={groups}
           keyExtractor={(item) => item}
@@ -232,7 +282,6 @@ export function WorkoutForm() {
           maxH={10}
           minH={10}
         />
-
         <VStack space={2}>
           {exercises.length > 0 ? (
             exercises.map((item) => renderExerciseItem(item))
@@ -242,10 +291,9 @@ export function WorkoutForm() {
             <Text>Nenhum exercício disponível.</Text>
           )}
         </VStack>
-
         <Button
-          title="Criar treino"
-          onPress={handleSubmit(handleCreateWorkout)}
+          title={workoutId ? "Atualizar treino" : "Criar treino"}
+          onPress={handleSubmit(handleCreateOrUpdateWorkout)}
           isLoading={isLoading}
           marginTop={4}
         />

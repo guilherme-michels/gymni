@@ -6,6 +6,7 @@ exports.up = (knex) =>
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.integer("times_completed").defaultTo(0);
     table.timestamp("last_completed_at").defaultTo(null);
+    table.integer("average_execution_time"); 
   });
 
 exports.down = (knex) => knex.schema.dropTable("workout");

@@ -25,7 +25,7 @@ type AppRoutes = {
   history: undefined;
   workout: { workoutId: string };
   workoutsList: undefined;
-  workoutForm: undefined;
+  workoutForm: { workoutId?: string };
 };
 
 export type AppNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;

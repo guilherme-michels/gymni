@@ -12,6 +12,7 @@ workoutRoutes.use(ensureAuthenticated);
 workoutRoutes.get("/", workoutController.index);
 workoutRoutes.post("/", workoutController.create);
 workoutRoutes.get("/:id", workoutController.show);
+workoutRoutes.put("/:id", workoutController.update);
 workoutRoutes.put("/history/:id", workoutController.history);
 workoutRoutes.delete("/:id", workoutController.delete);
 

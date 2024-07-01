@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   HStack,
   Image,
@@ -8,7 +8,11 @@ import {
   useToast,
   Button as NativeBaseButton,
 } from "native-base";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { AppError } from "@utils/AppError";
 import { WorkoutDTO } from "@dtos/WorkoutDTO";
 import {
@@ -20,7 +24,6 @@ import { ScreenHeader } from "@components/ScreenHeader";
 import { ExerciseDTO } from "@dtos/ExerciseDTO";
 import { api } from "src/api";
 import { TouchableOpacity } from "react-native";
-import { Button } from "@components/Button";
 import { AppNavigatorRouteProps } from "@routes/app.routes";
 
 type WorkoutRouteParamsProps = {
@@ -34,11 +37,37 @@ export function Workout() {
   const [completedExerciseIds, setCompletedExerciseIds] = useState<string[]>(
     []
   );
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   const route = useRoute();
   const toast = useToast();
   const navigation = useNavigation<AppNavigatorRouteProps>();
 
   const { workoutId } = route.params as WorkoutRouteParamsProps;
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchWorkoutDetails();
+    }, [workoutId])
+  );
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
+    if (isTimerRunning) {
+      timer = setInterval(() => {
+        setSecondsElapsed((prev) => prev + 1);
+      }, 1000);
+    } else if (timer) {
+      clearInterval(timer);
+    }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [isTimerRunning]);
 
   async function fetchWorkoutDetails() {
     try {
@@ -66,6 +95,8 @@ export function Workout() {
       setIsSendingRegister(true);
       await addWorkoutRegister(workoutId);
       setCompletedExerciseIds([]);
+      setSecondsElapsed(0);
+      setIsTimerRunning(false);
       toast.show({
         title: "Treino concluído, parabéns!",
         placement: "top",
@@ -75,7 +106,8 @@ export function Workout() {
       const isAppError = error instanceof AppError;
       const title = isAppError
         ? error.message
-        : "Não foi possível carregar os dados.";
+        : "Não foi possível registrar o treino.";
+
       toast.show({
         title,
         placement: "top",
@@ -109,6 +141,10 @@ export function Workout() {
     }
   }
 
+  function handleEditWorkout() {
+    navigation.navigate("workoutForm", { workoutId });
+  }
+
   function handleExerciseClick(exerciseId: string) {
     const isAlreadyCompleted = completedExerciseIds.includes(exerciseId);
     if (isAlreadyCompleted) {
@@ -119,10 +155,6 @@ export function Workout() {
       setCompletedExerciseIds([...completedExerciseIds, exerciseId]);
     }
   }
-
-  useEffect(() => {
-    fetchWorkoutDetails();
-  }, [workoutId]);
 
   const allExercisesCompleted =
     workout.exercises &&
@@ -135,6 +167,15 @@ export function Workout() {
     }
     return result;
   }
+
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   return (
     <VStack flex={1}>
@@ -214,21 +255,62 @@ export function Workout() {
         </VStack>
 
         <VStack flex={1} px={4} mt={4}>
-          <Button
-            title="Marcar como concluído"
-            isLoading={sendingRegister}
-            opacity={!allExercisesCompleted ? "20" : "100"}
-            onPress={handleWorkoutHistoryRegister}
-          />
+          <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>
+            Tempo médio do treino: {workout.average_execution_time} minutos
+          </Text>
 
-          <NativeBaseButton
-            mt={4}
-            onPress={handleDeleteWorkout}
-            colorScheme="red"
-            variant="solid"
-          >
-            Excluir treino
-          </NativeBaseButton>
+          {isTimerRunning ? (
+            <Text
+              style={{
+                color: "#000",
+                textAlign: "center",
+                marginTop: 20,
+                fontSize: 20,
+                backgroundColor: "#fff",
+                padding: 12,
+              }}
+            >
+              {formatTime(secondsElapsed)}
+            </Text>
+          ) : (
+            <NativeBaseButton
+              onPress={() => setIsTimerRunning(true)}
+              mt={4}
+              colorScheme="green"
+            >
+              Iniciar treino
+            </NativeBaseButton>
+          )}
+
+          {isTimerRunning && (
+            <NativeBaseButton
+              onPress={handleWorkoutHistoryRegister}
+              mt={4}
+              colorScheme="red"
+              isLoading={sendingRegister}
+              opacity={!allExercisesCompleted ? 0.2 : 1}
+            >
+              Finalizar treino
+            </NativeBaseButton>
+          )}
+
+          <HStack mt={4} space={4}>
+            <NativeBaseButton
+              onPress={handleDeleteWorkout}
+              colorScheme="red"
+              flex={1}
+            >
+              Excluir treino
+            </NativeBaseButton>
+
+            <NativeBaseButton
+              onPress={handleEditWorkout}
+              colorScheme="blue"
+              flex={1}
+            >
+              Editar treino
+            </NativeBaseButton>
+          </HStack>
         </VStack>
       </ScrollView>
     </VStack>
