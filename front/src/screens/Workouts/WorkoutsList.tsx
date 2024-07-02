@@ -66,13 +66,13 @@ export function WorkoutsList() {
             />
           ))
         )}
-
-        {workoutsList.length === 0 && (
-          <Text color={"gray.100"} textAlign={"center"} marginTop={4}>
-            Não há treinos cadastrados ainda.
-          </Text>
-        )}
       </ScrollView>
+
+      {workoutsList.length === 0 && (
+        <Text flex={1} color={"gray.100"} textAlign={"center"}>
+          Não há treinos cadastrados ainda.
+        </Text>
+      )}
     </VStack>
   );
 }

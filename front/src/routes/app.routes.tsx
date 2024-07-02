@@ -11,12 +11,14 @@ import { Home } from "@screens/Home";
 import { Profile } from "@screens/Profile";
 import { Workout } from "@screens/Workouts/Workout";
 import { WorkoutsList } from "@screens/Workouts/WorkoutsList";
+import MapScreen from "@screens/Map";
+import { WorkoutForm } from "@screens/Workouts/WorkoutForm";
 
 import ProfileSvg from "@assets/profile.svg";
 import HomeSvg from "@assets/home.svg";
 import HistorySvg from "@assets/history.svg";
 import WorkoutsSvg from "@assets/workouts.svg";
-import { WorkoutForm } from "@screens/Workouts/WorkoutForm";
+import MapSvg from "@assets/map.svg";
 
 type AppRoutes = {
   home: undefined;
@@ -26,6 +28,7 @@ type AppRoutes = {
   workout: { workoutId: string };
   workoutsList: undefined;
   workoutForm: { workoutId?: string };
+  map: undefined;
 };
 
 export type AppNavigatorRouteProps = BottomTabNavigationProp<AppRoutes>;
@@ -82,6 +85,26 @@ export function AppRoutes() {
       />
 
       <Screen
+        name="history"
+        component={History}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <HistorySvg fill={color} width={iconSize} height={iconSize} />
+          ),
+        }}
+      />
+
+      <Screen
+        name="map"
+        component={MapScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <MapSvg fill={color} width={iconSize} height={iconSize} />
+          ),
+        }}
+      />
+
+      <Screen
         name="workout"
         component={Workout}
         options={{
@@ -94,16 +117,6 @@ export function AppRoutes() {
         component={WorkoutForm}
         options={{
           tabBarButton: () => null,
-        }}
-      />
-
-      <Screen
-        name="history"
-        component={History}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <HistorySvg fill={color} width={iconSize} height={iconSize} />
-          ),
         }}
       />
 

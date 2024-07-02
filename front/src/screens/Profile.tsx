@@ -59,6 +59,7 @@ export function Profile() {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<ProfileDataProps>({
     defaultValues: {
       name: user.name,
@@ -118,8 +119,7 @@ export function Profile() {
     try {
       setIsUpdating(true);
 
-      const userUpdated = user;
-      userUpdated.name = data.name;
+      const userUpdated = { ...user, name: data.name };
 
       await updateProfile({
         name: data.name,
@@ -133,6 +133,14 @@ export function Profile() {
         title: "Perfil atualizado",
         placement: "top",
         bgColor: "green.400",
+      });
+
+      reset({
+        name: userUpdated.name,
+        email: userUpdated.email,
+        password: "",
+        oldPassword: "",
+        confirmPassword: "",
       });
     } catch (error) {
       const isAppError = error instanceof AppError;
@@ -217,11 +225,13 @@ export function Profile() {
           <Controller
             control={control}
             name="oldPassword"
-            render={({ field: { onChange } }) => (
+            render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="Senha atual"
                 secureTextEntry
                 onChangeText={onChange}
+                value={value}
+                errorMessage={errors.oldPassword?.message}
               />
             )}
           />
@@ -229,11 +239,12 @@ export function Profile() {
           <Controller
             control={control}
             name="password"
-            render={({ field: { onChange } }) => (
+            render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="Nova senha"
                 secureTextEntry
                 onChangeText={onChange}
+                value={value}
                 errorMessage={errors.password?.message}
               />
             )}
@@ -242,11 +253,12 @@ export function Profile() {
           <Controller
             control={control}
             name="confirmPassword"
-            render={({ field: { onChange } }) => (
+            render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="Confirmar nova senha"
                 secureTextEntry
                 onChangeText={onChange}
+                value={value}
                 errorMessage={errors.confirmPassword?.message}
               />
             )}
