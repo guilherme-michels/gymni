@@ -1,0 +1,15 @@
+## Getting Started
+
+<code>git clone https://github.com/guilherme-michels/gymni.git</code>
+
+### Backend (back)
+
+<code>cd back</code>
+<code>npm install</code>
+<code>npm run dev</code>
+
+### Frontend (front)
+
+<code>cd front</code>
+<code>npm install</code>
+<code>npm run dev</code>
