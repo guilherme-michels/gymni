@@ -1,15 +1,25 @@
+# React Native Project
+
+This project is designed to manage and save gym workouts.
+
 ## Getting Started
 
-<code>git clone https://github.com/guilherme-michels/gymni.git</code>
+```sh
+git clone https://github.com/guilherme-michels/gymni.git
+```
 
 ### Backend (back)
 
-<code>cd back</code>
-<code>npm install</code>
-<code>npm run dev</code>
+```sh
+cd back
+npm install
+npm run dev
+```
 
 ### Frontend (front)
 
-<code>cd front</code>
-<code>npm install</code>
-<code>npm run dev</code>
+```sh
+cd front
+npm install
+npm run dev
+```
